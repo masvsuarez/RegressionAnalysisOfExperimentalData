@@ -1,0 +1,29 @@
+
+/*display both duplicates*/
+
+SELECT a.*
+FROM public.relevant_kinase_activities a
+JOIN (SELECT assay_id, record_id, COUNT(*)
+FROM public.relevant_kinase_activities 
+GROUP BY assay_id, record_id
+HAVING count(*) > 1 ) b
+ON a.assay_id = b.assay_id
+AND a.record_id = b.record_id
+ORDER BY a.assay_id, a.record_id
+
+
+/*display last duplicate + listing count*/
+
+SELECT assay_id, COUNT(assay_id), record_id, COUNT(record_id), pchembl_value
+FROM public.relevant_notnullassays200
+GROUP BY assay_id, record_id, pchembl_value
+HAVING (COUNT(assay_id) > 1) AND (COUNT(record_id) > 1) 
+
+
+/*additional */
+
+SELECT assay_id, COUNT(assay_id), record_id, COUNT(record_id), published_value, activity_comment, count(activity_comment)
+FROM public.relevant_kinase_activities
+WHERE published_value IS NULL
+GROUP BY activity_comment, assay_id, record_id, published_value
+HAVING (COUNT(activity_comment) > 1) 

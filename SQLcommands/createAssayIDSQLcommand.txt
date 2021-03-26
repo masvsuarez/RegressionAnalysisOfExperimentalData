@@ -1,0 +1,64 @@
+ALTER TABLE public.all_assay_lib
+ADD COLUMN doc_id bigint,
+ADD COLUMN description character varying (4000),
+ADD COLUMN assay_type character varying (1), 
+ADD COLUMN tid bigint,
+ADD COLUMN pref_name character varying (4000),
+ADD COLUMN chembl_id_target character varying (30),
+ADD COLUMN relationship_type character varying (30),
+ADD COLUMN confidence_score smallint,
+ADD COLUMN curated_by character varying (32),
+ADD COLUMN chembl_id_assay character varying (30)
+
+UPDATE public.all_assay_lib t1
+SET doc_id = t2.doc_id
+FROM public.assays t2
+WHERE t1.assay_id = t2.assay_id;
+
+UPDATE public.all_assay_lib t1
+SET description = t2.description
+FROM public.assays t2
+WHERE t1.assay_id = t2.assay_id;
+
+UPDATE public.all_assay_lib t1
+SET assay_type = t2.assay_type
+FROM public.assays t2
+WHERE t1.assay_id = t2.assay_id;
+
+UPDATE public.all_assay_lib t1
+SET tid = t2.tid
+FROM public.assays t2
+WHERE t1.assay_id = t2.assay_id;
+
+UPDATE public.all_assay_lib t1
+SET relationship_type = t2.relationship_type
+FROM public.assays t2
+WHERE t1.assay_id = t2.assay_id;
+
+UPDATE public.all_assay_lib t1
+SET confidence_score = t2.confidence_score
+FROM public.assays t2
+WHERE t1.assay_id = t2.assay_id;
+
+UPDATE public.all_assay_lib t1
+SET curated_by = t2.curated_by
+FROM public.assays t2
+WHERE t1.assay_id = t2.assay_id;
+
+UPDATE public.all_assay_lib t1
+SET chembl_id_assay = t2.chembl_id
+FROM public.assays t2
+WHERE t1.assay_id = t2.assay_id;
+
+UPDATE public.all_assay_lib t1
+SET chembl_id_target = t2.chembl_id
+FROM public.target_dictionary t2
+WHERE t1.tid = t2.tid;
+
+UPDATE public.all_assay_lib t1
+SET pref_name = t2.pref_name
+FROM public.target_dictionary t2
+WHERE t1.tid = t2.tid;
+
+ALTER TABLE public.all_assay_lib
+ADD COLUMN int_aindx SERIAL PRIMARY KEY;

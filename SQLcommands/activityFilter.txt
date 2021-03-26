@@ -1,0 +1,149 @@
+/*529751*/
+select * into public.all_nonPotency from public.all_activities
+where standard_type not like 'Potency'
+
+(/*D62894)*/
+WITH tempa AS
+	(SELECT DISTINCT ON (assay_id, record_id, pchembl_value) * FROM public.all_nonpotency)
+delete FROM public.all_nonpotency WHERE public.all_nonpotency.activity_id NOT IN (SELECT activity_id FROM tempa)
+
+/*(D44)*/
+delete FROM public.all_nonpotency
+	WHERE activity_id IN (SELECT activity_id FROM
+  (SELECT *, count(*)
+  OVER
+    (PARTITION BY
+      assay_id,
+      record_id
+    ) AS count
+  FROM public.all_nonpotency) tableWithCount
+  WHERE tableWithCount.count > 1 AND published_units IS NULL);
+
+/*(D240)*/
+delete FROM public.all_nonpotency
+	WHERE activity_id IN (SELECT activity_id FROM
+  (SELECT *, count(*)
+  OVER
+    (PARTITION BY
+      assay_id,
+      record_id
+    ) AS count
+  FROM public.all_nonpotency) tableWithCount
+  WHERE tableWithCount.count > 1 AND standard_type = 'EC50');
+
+/*(D219)*/
+delete FROM public.all_nonpotency
+	WHERE activity_id IN (SELECT activity_id FROM
+  (SELECT *, count(*)
+  OVER
+    (PARTITION BY
+      assay_id,
+      record_id
+    ) AS count
+  FROM public.all_nonpotency) tableWithCount
+  WHERE tableWithCount.count > 1 AND standard_relation NOT LIKE '=');
+
+/*(D46)*/
+delete FROM public.all_nonpotency
+	WHERE activity_id IN (SELECT activity_id FROM
+  (SELECT *, count(*)
+  OVER
+    (PARTITION BY
+      assay_id,
+      record_id
+    ) AS count
+  FROM public.all_nonpotency) tableWithCount
+  WHERE tableWithCount.count > 1 AND pchembl_value IS NULL);
+
+/*(D42)*/
+delete from public.all_nonPotency
+where pchembl_value is null and standard_relation like '=' and activity_comment like 'Inconclusive'
+
+/*(D118)*/
+delete from public.all_nonPotency
+where pchembl_value is null and standard_relation like '=' and activity_comment like 'inconclusive'
+
+/*(D9)*/
+delete from public.all_nonPotency
+where pchembl_value is null and standard_relation like '='  and published_units is null
+
+/*(U118561)*/
+UPDATE public.all_nonPotency
+	SET pchembl_value = -log(standard_value*10^(-9))-1
+where pchembl_value is null and standard_relation ='>'
+
+/*(U295)*/
+UPDATE public.all_nonPotency
+	SET pchembl_value = -log(standard_value*10^(-9))-1
+where pchembl_value is null and standard_relation ='>='
+
+/*(U7015)*/
+UPDATE public.all_nonPotency
+	SET pchembl_value = -log(standard_value*10^(-9))+1
+where pchembl_value is null and standard_relation ='<'
+
+/*(U593)*/
+UPDATE public.all_nonPotency
+	SET pchembl_value = -log(standard_value*10^(-9))+1
+where pchembl_value is null and standard_relation ='<='
+
+/*(D189)*/
+delete from public.all_nonPotency
+where pchembl_value is null and standard_relation is null and standard_value = 0.0
+
+/*(U18887)*/
+UPDATE public.all_nonPotency
+	SET pchembl_value = -log(standard_value*10^(-9))
+where pchembl_value is null and standard_relation is null;
+
+/*(D496)*/
+delete from public.all_nonPotency
+where pchembl_value is null and standard_relation = '=' and standard_value = 0.0
+
+/*(U2037)*/
+UPDATE public.all_nonPotency
+	SET pchembl_value = -log(standard_value*10^(-9))
+where pchembl_value is null and standard_relation = '=';
+
+
+/*(Average out duplicates)*/
+select a.assay_id, a.record_id, avg(a.pchembl_value) from public.all_nonpotency a,
+(select assay_id, record_id, count(*) from public.all_nonpotency
+group by assay_id, record_id having count(*) >1) as b
+where a.assay_id = b.assay_id and a.record_id = b.record_id
+group by a.assay_id, a.record_id
+order by assay_id desc, record_id desc
+
+
+/*(D6340)*/
+WITH tempa AS
+	(SELECT DISTINCT ON (assay_id, record_id) * FROM public.all_nonpotency)
+delete FROM public.all_nonpotency WHERE public.all_nonpotency.activity_id NOT IN (SELECT activity_id FROM tempa);
+
+/*(U5797)*/
+UPDATE public.all_nonpotency t1
+SET pchembl_value = t2.avg
+FROM public.all_avgdata t2
+WHERE t1.assay_id = t2.assay_id AND t1.record_id = t2.record_id;
+
+
+/*(D20362 -> D4481)*/
+delete from public.all_nonpotency
+where activity_id in (
+select activity_id from public.all_nonpotency a, 
+(select assay_id, count(*) from public.all_nonpotency
+group by assay_id having count(*)<200 ) as b
+where a.assay_id = b.assay_id)
+
+/*(D51552)*/
+delete from public.all_nonpotency
+where activity_id in (select activity_id from public.all_nonpotency a, 
+(select record_id, count(*) from public.all_nonpotency
+group by record_id having count(*)=1 ) as b
+where a.record_id = b.record_id)
+
+/*(D9211)*/
+delete from public.all_nonpotency
+where assay_id in (
+select assay_id from public.all_nonpotency
+group by assay_id having stddev(pchembl_value) < 0.5)

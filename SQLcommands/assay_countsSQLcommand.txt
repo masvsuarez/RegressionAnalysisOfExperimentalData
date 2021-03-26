@@ -1,0 +1,3 @@
+SELECT assay_id, COUNT(*) AS CountOf FROM public.kinase_activities
+GROUP BY assay_id HAVING COUNT(*)>1 
+ORDER BY Countof DESC, assay_id ASC

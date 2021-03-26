@@ -1,0 +1,47 @@
+ALTER TABLE public.all_cmpd_lib
+ADD COLUMN chembl_id character varying (20);
+
+ALTER TABLE public.all_cmpd_lib
+ADD COLUMN standard_inchi character varying (4000);
+
+ALTER TABLE public.all_cmpd_lib
+ADD COLUMN standard_inchi_key character varying (27);
+
+ALTER TABLE public.all_cmpd_lib
+ADD COLUMN canonical_smiles character varying (4000);
+
+UPDATE public.all_cmpd_lib t1
+SET chembl_id = t2.chembl_id
+FROM public.molecule_dictionary t2
+WHERE t1.molregno = t2.molregno;
+
+UPDATE public.all_cmpd_lib t1
+SET canonical_smiles = t2.canonical_smiles
+FROM public.compound_structures t2
+WHERE t1.molregno = t2.molregno;
+
+UPDATE public.all_cmpd_lib t1
+SET standard_inchi = t2.standard_inchi
+FROM public.compound_structures t2
+WHERE t1.molregno = t2.molregno;
+
+UPDATE public.all_cmpd_lib t1
+SET standard_inchi_key = t2.standard_inchi_key
+FROM public.compound_structures t2
+WHERE t1.molregno = t2.molregno;
+
+ALTER TABLE public.all_cmpd_lib
+ADD COLUMN int_aindx SERIAL PRIMARY KEY;
+
+
+/*--------------------------------*/
+delete from public.all_nonpotency
+where record_id in (
+select record_id from public.all_cmpd_lib
+where standard_inchi is null)
+
+
+delete from public.all_cmpd_lib
+where record_id in (
+select record_id from public.all_cmpd_lib
+where standard_inchi is null)

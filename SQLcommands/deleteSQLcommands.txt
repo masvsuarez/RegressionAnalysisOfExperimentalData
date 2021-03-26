@@ -1,0 +1,293 @@
+DELETE FROM public.relevant_kinase_activities
+
+/*449*/
+	WHERE published_value IS NULL AND activity_comment LIKE '%Not Determined%' 
+/*207*/
+	WHERE published_value IS NULL AND activity_comment LIKE 'Active' 
+/*59*/
+	WHERE published_value IS NULL AND activity_comment IS NULL
+/*5910*/
+	WHERE published_value IS NULL AND activity_comment LIKE '%Not Active%' AND standard_type = 'Ki'
+/*187*/
+	WHERE published_value IS NULL AND activity_comment LIKE '%Note%'
+
+
+UPDATE public.relevant_kinase_activities
+
+/*5910*/	
+	SET pchembl_value = 4 WHERE published_value IS NULL;
+
+
+
+SELECT * INTO TABLE public.relevant_kinase_percentages
+FROM public.relevant_kinase_activities WHERE standard_units ='%'
+
+
+DELETE FROM public.relevant_kinase_activities
+
+/*140985*/
+	WHERE standard_units ='%'
+
+/*116	*/
+	WHERE 'list of duplicates' AND standard_type = 'EC50'
+
+/*22799*/
+WITH tempa AS
+	(SELECT DISTINCT ON (assay_id, record_id, pchembl_value) * FROM public.relevant_kinase_activities)
+DELETE FROM public.relevant_kinase_activities WHERE public.relevant_kinase_activities.activity_id NOT IN (SELECT activity_id FROM tempa);
+
+/*25*/
+DELETE FROM public.relevant_kinase_activities
+	WHERE activity_id IN (SELECT activity_id FROM
+  (SELECT *, count(*)
+  OVER
+    (PARTITION BY
+      assay_id,
+      record_id
+    ) AS count
+  FROM public.relevant_kinase_activities) tableWithCount
+  WHERE tableWithCount.count > 1 AND published_units IS NULL);
+
+/*58*/
+DELETE FROM public.relevant_kinase_activities
+	WHERE activity_id IN (SELECT activity_id FROM
+  (SELECT *, count(*)
+  OVER
+    (PARTITION BY
+      assay_id,
+      record_id
+    ) AS count
+  FROM public.relevant_kinase_activities) tableWithCount
+  WHERE tableWithCount.count > 1 and standard_type = 'EC50');
+
+/*74*/
+DELETE FROM public.relevant_kinase_activities
+	WHERE activity_id IN (SELECT activity_id FROM
+  (SELECT *, count(*)
+  OVER
+    (PARTITION BY
+      assay_id,
+      record_id
+    ) AS count
+  FROM public.relevant_kinase_activities) tableWithCount
+  WHERE tableWithCount.count > 1 and standard_relation NOT LIKE '=');
+
+/*25*/
+DELETE FROM public.relevant_kinase_activities
+	WHERE activity_id IN (SELECT activity_id FROM
+  (SELECT *, count(*)
+  OVER
+    (PARTITION BY
+      assay_id,
+      record_id
+    ) AS count
+  FROM public.relevant_kinase_activities) tableWithCount
+  WHERE tableWithCount.count > 1 and pchembl_value IS NULL);
+
+/*1185 (used for average - see averagedoutdata.csv)*/
+WITH tempa AS
+	(SELECT DISTINCT ON (assay_id, record_id) * FROM public.relevant_kinase_activities)
+DELETE FROM public.relevant_kinase_activities WHERE public.relevant_kinase_activities.activity_id NOT IN (SELECT activity_id FROM tempa);
+
+
+/*996 (updated with averagedoutdata.csv in temp_avgTable)*/
+UPDATE public.relevant_kinase_activities t1
+SET pchembl_value = t2.avg
+FROM public.temp_avgtable t2
+WHERE t1.assay_id = t2.assay_id AND t1.record_id = t2.record_id;
+
+/*71109 (update)*/
+UPDATE public.relevant_kinase_activities
+	SET pchembl_value = -log(standard_value*10^(-9))-1
+WHERE standard_relation ='>';
+
+/*4021*/
+UPDATE public.relevant_kinase_activities
+	SET pchembl_value = -log(standard_value*10^(-9))+1
+WHERE standard_relation ='<';
+
+/*1309*/
+UPDATE public.relevant_kinase_activities
+	SET pchembl_value = -log(standard_value*10^(-9))+1
+	WHERE pchembl_value IS NULL and standard_type = 'IC50' and data_validity_comment IS NULL
+
+/*699*/
+DELETE FROM public.relevant_kinase_activities
+WHERE pchembl_value IS NULL and standard_type = 'IC50'
+
+/*971*/
+DELETE FROM public.relevant_kinase_activities
+WHERE pchembl_value IS NULL and standard_type LIKE '%Potency%' and data_validity_comment IS NULL and activity_comment = 'inactive'
+
+/*25206*/
+DELETE FROM public.relevant_kinase_activities
+WHERE pchembl_value IS NULL and standard_type LIKE '%Potency%' and data_validity_comment IS NULL and activity_comment = 'inconclusive'
+
+/*15*/
+DELETE FROM public.relevant_kinase_activities
+WHERE pchembl_value IS NULL and standard_type LIKE '%Potency%' and data_validity_comment IS NOT NULL
+
+/*13984 (update)*/
+UPDATE public.relevant_kinase_activities
+	SET pchembl_value = -log(standard_value*10^(-9))
+	WHERE pchembl_value IS NULL and standard_type LIKE '%Potency%' 
+
+/*96*/
+DELETE FROM public.relevant_kinase_activities
+	WHERE pchembl_value IS NULL 
+
+/*388 (where no compound structure was given in the database)*/
+DELETE FROM public.relevant_kinase_activities
+WHERE record_id IN (1158105,
+1539588,
+1540103,
+1540066,
+2880004,
+2879513,
+2879985,
+2879918,
+2521109,
+2879854,
+2854522,
+2879979,
+1540151,
+1540015,
+1539516,
+1539849,
+1540159,
+2879969,
+2880008,
+2879974,
+2879527,
+2879508,
+2879999,
+2879868,
+2879990,
+2879970,
+2879874,
+2879685,
+2879872,
+2879862,
+2879861,
+2879869,
+2879875,
+2879980,
+2879995,
+2879684,
+2879966,
+1269007,
+1149131,
+1149039,
+1157866,
+978588,
+1539574,
+1539878,
+2879987,
+2879989,
+2879993,
+2879988,
+2879860,
+2854659,
+2879525,
+1539815,
+1540236,
+978654,
+1539575,
+1158368,
+1003501,
+2879981,
+2879863,
+2880006,
+2879997,
+2879879,
+2879849,
+2879984,
+2880000,
+1540212,
+1157854,
+1539793,
+1539615,
+1210960,
+1539648,
+1539879,
+1539909,
+2879855,
+2879858,
+2879865,
+2880005,
+2879866,
+2879992,
+2879871,
+2879856,
+2879971,
+2879976,
+1149406,
+1149180,
+2879964,
+2521107,
+2879850,
+2879982,
+2879867,
+2879851,
+2879978,
+2879510,
+2879526,
+1158600,
+978556,
+1157878,
+1539626,
+2879972,
+2879967,
+2879870,
+2879864,
+2879996,
+1539587,
+1539816,
+1539649,
+1539892,
+1539910,
+1539911,
+1540005,
+1540067,
+1540285,
+2879919,
+2879965,
+2879983,
+2879975,
+2516137)
+
+/*25019*/
+DELETE FROM public.relevant_kinase_activities
+WHERE assay_id IN (1369406,
+774677,
+1369408,
+1369409,
+1369410,
+774678,
+774685,
+1640437,
+774684,
+688111,
+688693,
+774679,
+809159,
+1641782,
+737538,
+774680,
+1640622,
+774683,
+1528014,
+809229,
+1641783,
+688258,
+809176,
+1640623,
+737244,
+737047,
+737392,
+809164,
+1301717,
+1637334,
+809270,
+809126,
+809137)
