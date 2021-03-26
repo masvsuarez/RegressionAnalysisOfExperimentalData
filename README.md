@@ -1,6 +1,6 @@
 # RegressionAnalysisOfExperimentalData
 
-Preparing an up-to-date dataset of experimental data is tricky. Please find details in ```ProgressReport.pdf``` on how to download, clean and structure the data. All SQL commands are provided in **SQLcommands** as text files and can be run in sequence according to the pdf and the instructions below.
+Preparing an up-to-date dataset of experimental data is tricky. Please find details in ```ProgressReport.pdf``` on how to download, clean and structure the data. All SQL commands are provided in ```SQLcommands``` as text files and can be run in sequence according to the pdf and the instructions below.
 
 Sample processed data is provided in the *data* folder and contains Chemical Activity (target variable) and the relevant context information, incl. molecules used for later embedding (predictor variables).
 
