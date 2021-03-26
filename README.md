@@ -24,3 +24,44 @@
 16. Update and Remove Assays with stddev < 0.5 and hits < 200
 17. Update files again
 
+### More details:
+1. Find the kinase protein target IDs from the target_dictionary by searching for kinases in the pref_name (-> kinases_dictionary_data.csv)
+
+`SELECT * FROM public.target_dictionary
+WHERE pref_name LIKE '%kinase%'`
+
+2. Save the results as .csv and use the taget IDs (tid) to search for relevant assays (-> all_kinase_assays.csv): 
+
+`SELECT * FROM public.assays
+WHERE tid IN (8, 188, 213, ... , 117289)`
+
+3. Save the result as .csv and look for the corresponding activities for each assay (searching from assay_id):
+(-> saves as SQL table kinase_activities)
+
+`SELECT * INTO TABLE kinase_activities FROM public.activities
+WHERE assay_id IN (371, 372, ... 1642574, 1642575)`
+
+4. Count the activities for all assays and sort them. Save indexes as .csv (-> assay_id_and_counts.csv) but also
+(-> SQL relevant_assayids AND relevant_assayidover200)
+
+`SELECT assay_id, COUNT(*) AS CountOf FROM public.kinase_activities
+GROUP BY assay_id HAVING COUNT(*)>1 
+ORDER BY Countof DESC, assay_id ASC`
+
+5. Save the kinase_activities for the relevant assays and save in SQL table:
+
+`SELECT * INTO TABLE relevant_kinase_activities FROM public.kinase_activities
+WHERE assay_id IN (1301717, 688293, ..., 1527619, 1642538)`
+
+6. Save the temp_notnullpic50 for the relevant assays:
+
+`SELECT * INTO public.temp_notnullpic50 FROM public.relevant_kinase_activities
+WHERE pchembl_value IS NOT NULL`
+
+7. Check the assay_ids with 200+ entries
+
+`SELECT assay_id, COUNT(*) AS CountOf FROM public.temp_notnullpic50
+GROUP BY assay_id HAVING COUNT(*)>=200
+ORDER BY Countof DESC, assay_id ASC`
+
+
