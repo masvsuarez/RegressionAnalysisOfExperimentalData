@@ -4,6 +4,9 @@ Preparing an up-to-date dataset of experimental data is tricky. Please find deta
 
 Sample processed data is provided in the ```data``` folder and contains Chemical Activity (target variable) and the relevant context information, incl. molecules used for later embedding (predictor variables).
 
+This experiment was conducted and implemented in collaboration with Novartis scientists, initial trials on simple feed-forward neural network were conducted, but subsequent progress is proprietary. For more information please refer to:
+
+Martin EJ, Polyakov VR, Tian L, Perez RC. Profile-QSAR 2.0: Kinase Virtual Screening Accuracy Comparable to Four-Concentration IC50s for Realistically Novel Compounds. J Chem Inf Model. 2017 Aug 28;57(8):2077-2088. doi: 10.1021/acs.jcim.7b00166. Epub 2017 Jul 26. PMID: 28651433.
 
 # SQL ChEMBl database - data cleaning for Kinase protein family
 
