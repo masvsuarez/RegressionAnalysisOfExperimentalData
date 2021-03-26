@@ -64,4 +64,12 @@ WHERE pchembl_value IS NOT NULL`
 GROUP BY assay_id HAVING COUNT(*)>=200
 ORDER BY Countof DESC, assay_id ASC`
 
-
+8. Select Assays with entries over 200
+9. Select Assays with targets corresponding to proteins (H, D)
+10. Remove Activities that only describe a compound once
+11. Remove ACtivities that have '%' units
+12. Remove Activities that have standard_types other than IC50, EC50, IC50, Ki, Potency
+13. Remove Activities that have published_value of null and no further conclusive comment or their Ki counterparts
+14. (U87168)
+`update public.all_activities
+set pchembl_value = 4 where published_value is null`
